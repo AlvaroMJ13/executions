@@ -6,9 +6,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.payment.executions.client.GatewayClient;
 import com.payment.executions.controller.request.ExecutionRequest;
 import com.payment.executions.dao.EntityDAO;
 import com.payment.executions.dao.EntityStatusDAO;
@@ -47,6 +49,9 @@ public class ExecutionServiceImpl implements ExecutionService{
 	@Autowired
 	private StatusRepository statusRepository;
 	
+	@Autowired
+	private GatewayClient gatewayClient;
+	
 	
 	@Override
 	public UUID createExecution(ExecutionRequest executionRequest) throws OperationNotFound, OperationNotAllowed, OperationNotPresent  {
@@ -82,6 +87,10 @@ public class ExecutionServiceImpl implements ExecutionService{
 			if (nextStatusIdFromRequest == nextStatus.getIdStatus()) {
 			
 				createExecutionStatus(ExecutionStatusDAO.builder().id(executionStored.getId()).statusId(nextStatus.getIdStatus()).timestamp(LocalDateTime.now()).build());
+				
+				//Call Gateway next step
+				ResponseEntity<String> response = gatewayClient.getStep1();
+				log.info("Respuesta Gateway: {}", response.getBody());
 				
 			} else {
 				log.error("La operacion solicitada {} no coincide con el siguiente estado", executionRequest.getOperation());

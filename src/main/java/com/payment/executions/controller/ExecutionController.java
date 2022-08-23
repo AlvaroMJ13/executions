@@ -32,7 +32,6 @@ public class ExecutionController {
 	@Autowired
 	private ExecutionService executionService;
 	
-	
 	@GetMapping("/{executionId}")
     public ResponseEntity<ExecutionResponse> getExecutionById(@PathVariable("executionId") String executionId) {
 
@@ -53,21 +52,21 @@ public class ExecutionController {
 
 	
 	@PostMapping
-    public ResponseEntity<ExecutionResponse> createExecution(@Valid @RequestBody ExecutionRequest executionRequest ) {
+	public ResponseEntity<ExecutionResponse> createExecution(@Valid @RequestBody ExecutionRequest executionRequest ) {
 
 		log.info("Creating execution with gtsMessageId {}", executionRequest.getGtsMessageId());
-		
-		UUID idStored = null;
-			try {
-				idStored = executionService.createExecution(executionRequest);
-				
-			} catch (Exception e) {
-				return ResponseEntity.badRequest().build();
 
-			}
-		
+		UUID idStored = null;
+		try {
+			idStored = executionService.createExecution(executionRequest);
+
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().build();
+
+		}
+
 		return ResponseEntity.ok().body(ExecutionResponse.builder().id(idStored).build());
 
-    }
+	}
 	
 }

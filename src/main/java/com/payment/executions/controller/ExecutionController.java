@@ -46,7 +46,7 @@ public class ExecutionController {
 			return ResponseEntity.ok().body(executionResponse);
 		} else {
 			log.info("No result for execution with id {}", executionId);
-			return ResponseEntity.noContent().build();
+			return ResponseEntity.notFound().build();
 		}
 
     }

@@ -88,9 +88,15 @@ public class ExecutionServiceImpl implements ExecutionService{
 			
 				createExecutionStatus(ExecutionStatusDAO.builder().id(executionStored.getId()).statusId(nextStatus.getIdStatus()).timestamp(LocalDateTime.now()).build());
 				
-				//Call Gateway next step
-				ResponseEntity<String> response = gatewayClient.getStep1();
-				log.info("Respuesta Gateway: {}", response.getBody());
+				if (nextStatus.isRungateway()) {
+					//Call Gateway next step
+					try {
+					ResponseEntity<String> response = gatewayClient.getStep1();
+					log.info("Respuesta Gateway: {}", response.getBody());
+					} catch (Exception e) {
+						log.error("Ha habido un error al conectar con el Gateway: {}", e.getLocalizedMessage());
+					}
+				}
 				
 			} else {
 				log.error("La operacion solicitada {} no coincide con el siguiente estado", executionRequest.getOperation());

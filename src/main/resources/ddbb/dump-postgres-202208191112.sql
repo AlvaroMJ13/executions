@@ -66,13 +66,16 @@ ALTER TABLE pagos.entity ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 --
 
 CREATE TABLE pagos.entity_status (
-    identity integer NOT NULL,
-    idstatus integer NOT NULL,
-    "order" integer NOT NULL
+	"identity" int4 NOT NULL,
+	idstatus int4 NOT NULL,
+	"order" int4 NOT NULL,
+	rungateway bool NOT NULL DEFAULT true
 );
 
 
 ALTER TABLE pagos.entity_status OWNER TO postgres;
+
+--ALTER TABLE pagos.entity_status ADD rungateway boolean NOT NULL DEFAULT true;
 
 --
 -- TOC entry 474 (class 1259 OID 31336)

@@ -29,5 +29,7 @@ public class EntityStatusDAO {
 	private int idStatus;
 	
 	private int order;
+	
+	private boolean rungateway;
 
 }

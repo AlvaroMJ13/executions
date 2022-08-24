@@ -68,7 +68,7 @@ ALTER TABLE pagos.entity ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 CREATE TABLE pagos.entity_status (
 	"identity" int4 NOT NULL,
 	idstatus int4 NOT NULL,
-	"order" int4 NOT NULL,
+	orderstep int4 NOT NULL,
 	rungateway bool NOT NULL DEFAULT true
 );
 

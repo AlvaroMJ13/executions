@@ -78,9 +78,9 @@ public class ExecutionServiceImpl implements ExecutionService{
 			
 			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(entityId);
 			
-			int actualOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrder();
+			int actualOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrderstep();
 			
-			EntityStatusDAO nextStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrder() == actualOrderStatus + 1).findFirst().orElseThrow(() -> new OperationNotFound());
+			EntityStatusDAO nextStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrderstep() == actualOrderStatus + 1).findFirst().orElseThrow(() -> new OperationNotFound());
 			int nextStatusIdFromRequest = getStatusIdFromName(executionRequest.getOperation());
 			
 			log.info("Se ha encontrado el id {} para la operacion solicitada {}", nextStatus.getIdStatus(), executionRequest.getOperation());
@@ -91,8 +91,8 @@ public class ExecutionServiceImpl implements ExecutionService{
 				if (nextStatus.isRungateway()) {
 					//Call Gateway next step
 					try {
-					ResponseEntity<String> response = gatewayClient.getStep1();
-					log.info("Respuesta Gateway: {}", response.getBody());
+						ResponseEntity<String> response = gatewayClient.getStep1();
+						log.info("Respuesta Gateway: {}", response.getBody());
 					} catch (Exception e) {
 						log.error("Ha habido un error al conectar con el Gateway: {}", e.getLocalizedMessage());
 					}
@@ -142,7 +142,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 
 	@Override
 	public List<EntityStatusDAO> getAllStatusByEntity(int entityId) {
-		return entityStatusRepository.findByIdEntityOrderByOrderAsc(entityId);
+		return entityStatusRepository.findByIdEntityOrderByOrderstepAsc(entityId);
 	}
 
 	@Override

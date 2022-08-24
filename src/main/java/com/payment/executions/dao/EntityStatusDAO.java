@@ -28,7 +28,7 @@ public class EntityStatusDAO {
 	@Column(name="idstatus")
 	private int idStatus;
 	
-	private int order;
+	private int orderstep;
 	
 	private boolean rungateway;
 

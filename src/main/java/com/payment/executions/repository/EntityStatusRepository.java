@@ -11,6 +11,6 @@ import com.payment.executions.dao.EntityStatusId;
 @Repository
 public interface EntityStatusRepository extends JpaRepository<EntityStatusDAO, EntityStatusId> {
 	
-	List<EntityStatusDAO> findByIdEntityOrderByOrderAsc (int entityId);
+	List<EntityStatusDAO> findByIdEntityOrderByOrderstepAsc (int entityId);
 	
 }

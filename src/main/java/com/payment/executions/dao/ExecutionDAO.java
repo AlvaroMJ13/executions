@@ -43,10 +43,10 @@ public class ExecutionDAO {
 	private EntityDAO entityDao;
 
 	@Column(name="gtsmessageid")
-	private Integer gtsMessageId;
+	private String gtsMessageId;
 	
 	@Column(name="globaloperationid")
-	private Integer globalOperationId;
+	private String globalOperationId;
 
 	@OneToMany(mappedBy = "executionDAO", fetch = FetchType.LAZY)
 	private List<ExecutionStatusDAO> executionStatusDAO;

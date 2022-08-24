@@ -11,6 +11,6 @@ import com.payment.executions.dao.ExecutionDAO;
 @Repository
 public interface ExecutionRepository extends JpaRepository<ExecutionDAO, UUID> {
 	
-	Optional<ExecutionDAO> findByGtsMessageId(Integer messasgeId);
+	Optional<ExecutionDAO> findByGtsMessageId(String messasgeId);
 
 }

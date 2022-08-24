@@ -56,7 +56,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 	@Override
 	public UUID createExecution(ExecutionRequest executionRequest) throws OperationNotFound, OperationNotAllowed, OperationNotPresent  {
 		int entityId = getEntityIdFromName(executionRequest.getEntity());
-		Optional<ExecutionDAO> executionStoredOptional = getExecutionByMessageId(Integer.parseInt(executionRequest.getGtsMessageId()));
+		Optional<ExecutionDAO> executionStoredOptional = getExecutionByMessageId(executionRequest.getGtsMessageId());
 		
 		if (executionStoredOptional.isEmpty()) {
 			
@@ -123,7 +123,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 	}
 
 	@Override
-	public Optional<ExecutionDAO> getExecutionByMessageId(Integer messasgeId) {
+	public Optional<ExecutionDAO> getExecutionByMessageId(String messasgeId) {
 		return executionRepository.findByGtsMessageId(messasgeId);
 	}
 

@@ -48,7 +48,7 @@ public class ExecutionDAO {
 	@Column(name="globaloperationid")
 	private String globalOperationId;
 
-	@OneToMany(mappedBy = "executionDAO", fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "executionDAO", fetch = FetchType.EAGER)
 	private List<ExecutionStatusDAO> executionStatusDAO;
 	
 	@Transient

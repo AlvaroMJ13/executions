@@ -55,11 +55,10 @@ public class ExecutionServiceImpl implements ExecutionService{
 	
 	@Override
 	public UUID createExecution(ExecutionRequest executionRequest) throws OperationNotFound, OperationNotAllowed, OperationNotPresent  {
-		int entityId = getEntityIdFromName(executionRequest.getEntity());
-		Optional<ExecutionDAO> executionStoredOptional = getExecutionByMessageId(executionRequest.getGtsMessageId());
 		
+		Optional<ExecutionDAO> executionStoredOptional = getExecutionByMessageId(executionRequest.getGtsMessageId());
 		if (executionStoredOptional.isEmpty()) {
-			
+			int entityId = getEntityIdFromName(executionRequest.getEntity());
 			executionRequest.setEntityId(entityId);
 			ExecutionDAO executionDao = ExecutionRequestToExecutionDAO.convert(executionRequest);
 			executionDao.setStatusId(1);
@@ -75,8 +74,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 			ExecutionDAO executionStored = executionStoredOptional.get();
 			int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
 			
-			
-			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(entityId);
+			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
 			
 			int actualOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrderstep();
 			

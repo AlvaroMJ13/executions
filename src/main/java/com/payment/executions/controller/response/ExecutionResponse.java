@@ -18,11 +18,13 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL)
 public class ExecutionResponse {
 
-	public UUID id;
-	public String entity;
-	public String lastExecute;
-	public String gtsMessageId;
-	public String globalOperationId;
-	public List<Historic> historic;
+	private UUID id;
+	private String entity;
+	private String lastExecute;
+	private String gtsMessageId;
+	private String globalOperationId;
+	private List<Historic> historic;
+	private String error;
+	
 	
 }

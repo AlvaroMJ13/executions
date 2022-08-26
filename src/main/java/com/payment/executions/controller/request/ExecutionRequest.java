@@ -28,4 +28,6 @@ public class ExecutionRequest {
 	
 	public String operation;
 	
+	public int operationId;
+	
 }

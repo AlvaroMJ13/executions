@@ -62,7 +62,7 @@ public class ExecutionController {
 			idStored = executionService.createExecution(executionRequest);
 
 		} catch (Exception e) {
-			return ResponseEntity.badRequest().build();
+			return ResponseEntity.badRequest().body(ExecutionResponse.builder().error(e.getMessage()).build());
 
 		}
 

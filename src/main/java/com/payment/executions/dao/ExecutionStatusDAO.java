@@ -30,11 +30,11 @@ public class ExecutionStatusDAO {
 	private UUID id;
 
 	@Id
-	@Column(name="statusid")
+	@Column(name="status_id")
 	private int statusId;
 	
 	@OneToOne
-	@JoinColumn(name = "statusid", referencedColumnName = "id", insertable = false, updatable = false)
+	@JoinColumn(name = "status_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private StatusDAO statusDao;
 
 	private LocalDateTime timestamp;

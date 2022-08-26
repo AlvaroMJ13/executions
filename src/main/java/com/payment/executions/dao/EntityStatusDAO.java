@@ -21,15 +21,17 @@ import lombok.NoArgsConstructor;
 public class EntityStatusDAO {
 	
 	@Id
-	@Column(name="identity")
+	@Column(name="entity_id")
 	private int idEntity;
 
 	@Id
-	@Column(name="idstatus")
+	@Column(name="status_id")
 	private int idStatus;
 	
+	@Column(name="order_step")
 	private int orderstep;
 	
+	@Column(name="run_gateway")
 	private boolean rungateway;
 
 }

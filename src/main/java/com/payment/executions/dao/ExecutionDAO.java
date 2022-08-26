@@ -35,17 +35,17 @@ public class ExecutionDAO {
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private UUID id;
 
-	@Column(name="entityid")
+	@Column(name="entity_id")
 	private int entityId;
 	
 	@OneToOne
-	@JoinColumn(name = "entityid", referencedColumnName = "id", insertable = false, updatable = false)
+	@JoinColumn(name = "entity_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private EntityDAO entityDao;
 
-	@Column(name="gtsmessageid")
+	@Column(name="gts_message_id")
 	private String gtsMessageId;
 	
-	@Column(name="globaloperationid")
+	@Column(name="global_operation_id")
 	private String globalOperationId;
 
 	@OneToMany(mappedBy = "executionDAO", fetch = FetchType.EAGER)

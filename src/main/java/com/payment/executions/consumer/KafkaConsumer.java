@@ -22,7 +22,11 @@ public class KafkaConsumer {
 		log.info("Mensaje leido. gtsMessageId: {}", executionMessage.getGtsMessageId());
 		
 		try {
-			executionService.createExecution(ExecutionRequest.builder().gtsMessageId(executionMessage.getGtsMessageId()).operation(executionMessage.getOperation()).build());
+			executionService.createExecution(ExecutionRequest.builder()
+					.gtsMessageId(executionMessage.getGtsMessageId())
+					.operation(executionMessage.getOperation())
+					.idExecution(executionMessage.getIdExecution())
+					.build());
 		} catch (Exception e) {
 			log.error("There was an error trying to update excution with gtsMessageId: {}", executionMessage.getGtsMessageId());
 		}

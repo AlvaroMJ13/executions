@@ -17,8 +17,6 @@ public interface ExecutionService {
 	
 	UUID createExecution (ExecutionDAO executionDAO);
 	
-	Optional<ExecutionDAO> getExecutionByMessageId (String messasgeId);
-	
 	boolean createExecutionStatus (ExecutionStatusDAO executionDAO);
 	
 	int getEntityIdFromName(String name);

@@ -10,7 +10,6 @@ public class ExecutionRequestToExecutionDAO {
 		
 		ExecutionDAO executionDao = ExecutionDAO.builder()
 					.entityId(executionRequest.getEntityId())
-					.gtsMessageId(executionRequest.getGtsMessageId())
 				.build();
 		return executionDao;
 	}

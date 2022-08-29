@@ -13,7 +13,13 @@ public class ExecutionDAOToExecutionResponse {
 	public static ExecutionResponse convert(ExecutionDAO execution) {
 		List<Historic> historicList = execution.getExecutionStatusDAO().stream().map(statusDAO -> {
 			
-			return Historic.builder().execution(Status.builder().status(statusDAO.getStatusDao().getName()).timestamp(statusDAO.getTimestamp()).build()).build();
+			return Historic.builder()
+					.execution(Status.builder()
+							.status(statusDAO.getStatusDao().getName())
+							.timestamp(statusDAO.getTimestamp())
+							.gtsMessageId(statusDAO.getGtsMessageId())
+							.build())
+					.build();
 			
 		}).collect(Collectors.toList());
 		
@@ -21,10 +27,11 @@ public class ExecutionDAOToExecutionResponse {
 		ExecutionResponse executionResponse = ExecutionResponse.builder()
 			.id(execution.getId())
 			.entity(execution.getEntityDao().getName())
-			.gtsMessageId(String.valueOf(execution.getGtsMessageId()))
+			.gtsMessageId(String.valueOf(historicList.get(historicList.size() - 1).getExecution().getGtsMessageId()))
 			.globalOperationId(String.valueOf(execution.getGlobalOperationId()))
 			.lastExecute(historicList.get(historicList.size() - 1).getExecution().getStatus())
-			.historic(historicList).build();
+			.historic(historicList)
+			.build();
 		return executionResponse;
 	}
 

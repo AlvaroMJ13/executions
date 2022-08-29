@@ -38,8 +38,8 @@ class ExecutionsApplicationTests {
 	
 	@BeforeAll
 	void init () {
-		id = executionRepository.save(ExecutionDAO.builder().entityId(1).gtsMessageId("1313").build()).getId();
-		executionStatusRepository.save(ExecutionStatusDAO.builder().id(id).statusId(1).timestamp(LocalDateTime.now()).build());
+		id = executionRepository.save(ExecutionDAO.builder().entityId(1).build()).getId();
+		executionStatusRepository.save(ExecutionStatusDAO.builder().id(id).statusId(1).gtsMessageId("1313").timestamp(LocalDateTime.now()).build());
 	}
 	
 	@AfterAll

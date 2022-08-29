@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Status {
 	
-	public String status;
-    public LocalDateTime timestamp;
+	private String status;
+    private LocalDateTime timestamp;
+    private String gtsMessageId;
 
 }

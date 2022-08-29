@@ -58,29 +58,35 @@ public class ExecutionServiceImpl implements ExecutionService{
 	@Override
 	public UUID createExecution(ExecutionRequest executionRequest) throws OperationNotFound, OperationNotAllowed, OperationNotPresent  {
 		
-		Optional<ExecutionDAO> executionStoredOptional = getExecutionByMessageId(executionRequest.getGtsMessageId());
-		if (executionStoredOptional.isEmpty()) {
+		if (executionRequest.getIdExecution() == null) {
 			int entityId = getEntityIdFromName(executionRequest.getEntity());
 			executionRequest.setEntityId(entityId);
 			ExecutionDAO executionDao = ExecutionRequestToExecutionDAO.convert(executionRequest);
 			executionDao.setStatusId(1);
-			
+			executionDao.setGtsMessageId(executionRequest.getGtsMessageId());
 			return createExecution(executionDao);
 			
 		} else {
 			
-			if (executionRequest.getOperation() == null && executionRequest.getOperationId() == 0) {
-				log.error("No existe el parámetro operation en la peticion");
-				throw new OperationNotPresent("No existe el parámetro operation en la peticion");
+			Optional<ExecutionDAO> executionStoredOptional = getExecutionById(UUID.fromString(executionRequest.getIdExecution()));
+			
+			if (executionStoredOptional.isPresent()) {
+				if (executionRequest.getOperation() == null && executionRequest.getOperationId() == 0) {
+					log.error("No existe el parámetro operation en la peticion");
+					throw new OperationNotPresent("No existe el parámetro operation en la peticion");
+				}
+
+				ExecutionDAO executionStored = executionStoredOptional.get();
+				int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
+				List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
+				int nextStatus = getStatusIdFromName(executionRequest.getOperation());
+				manageNextState(entityStatusList, executionStored.getId(), lastStatus, nextStatus);
+
+				return executionStored.getId();
+			} else {
+				log.error("No existe el ID de la ejecución");
+				throw new OperationNotFound();
 			}
-			
-			ExecutionDAO executionStored = executionStoredOptional.get();
-			int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
-			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
-			int nextStatus = getStatusIdFromName(executionRequest.getOperation());
-			manageNextState(entityStatusList, executionStored.getId(), lastStatus, nextStatus);
-			
-			return executionStored.getId();
 			
 		}
 	}
@@ -102,7 +108,12 @@ public class ExecutionServiceImpl implements ExecutionService{
 		log.info("Se ha encontrado el id {} para la operacion solicitada ", nextEntityStatus.getIdStatus());
 		if (validOrderStep(lastOrderStatus, nextEntityStatus)) {
 		
-			createExecutionStatus(ExecutionStatusDAO.builder().id(id).statusId(nextEntityStatus.getIdStatus()).timestamp(LocalDateTime.now()).build());
+			createExecutionStatus(ExecutionStatusDAO.builder()
+					.id(id)
+					.statusId(nextEntityStatus.getIdStatus())
+					.timestamp(LocalDateTime.now())
+					.gtsMessageId("1")
+					.build());
 			
 			if (nextEntityStatus.isRungateway()) {
 				//Call Gateway next step
@@ -137,14 +148,14 @@ public class ExecutionServiceImpl implements ExecutionService{
 	@Override
 	public UUID createExecution(ExecutionDAO executionDAO) {
 		UUID id = executionRepository.save(executionDAO).getId();
-		createExecutionStatus(ExecutionStatusDAO.builder().id(id).statusId(executionDAO.getStatusId()).timestamp(LocalDateTime.now()).build());
+		createExecutionStatus(ExecutionStatusDAO.builder()
+				.id(id)
+				.statusId(executionDAO.getStatusId())
+				.timestamp(LocalDateTime.now())
+				.gtsMessageId(executionDAO.getGtsMessageId())
+				.build());
 		log.info("Ejecución creada correctamente con id: {}", id);
 		return id;
-	}
-
-	@Override
-	public Optional<ExecutionDAO> getExecutionByMessageId(String messasgeId) {
-		return executionRepository.findByGtsMessageId(messasgeId);
 	}
 
 	@Override
@@ -176,7 +187,6 @@ public class ExecutionServiceImpl implements ExecutionService{
 	public void createSecondStepStatus(int entityId, UUID id) {
 		try {
 			
-			Thread.sleep(7000);
 			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(entityId);
 			manageNextState(entityStatusList, id, 1, null);
 		} catch (OperationNotFound e) {
@@ -185,10 +195,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 		} catch (OperationNotAllowed e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 		
 	}
 

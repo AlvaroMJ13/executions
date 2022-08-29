@@ -37,6 +37,9 @@ public class ExecutionStatusDAO {
 	@JoinColumn(name = "status_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private StatusDAO statusDao;
 
+	@Column(name="gts_message_id")
+	private String gtsMessageId;
+	
 	private LocalDateTime timestamp;
 	
 	@ManyToOne

@@ -13,4 +13,6 @@ public class ExecutionMessage {
 	
 	public String operation;
 	
+	public String idExecution;
+	
 }

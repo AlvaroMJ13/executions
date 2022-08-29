@@ -21,6 +21,8 @@ public class ExecutionRequest {
 	
 	public int entityId;
 	
+	public String idExecution;
+	
 	@NotNull
 	public String gtsMessageId;
 	

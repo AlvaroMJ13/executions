@@ -61,13 +61,14 @@ public class ExecutionController {
 		try {
 			idStored = executionService.createExecution(executionRequest);
 			
-//			executionService.createSecondStepStatus(1, idStored);
+			if (executionRequest.getIdExecution() == null) {
+				executionService.createSecondStepStatus(1, idStored);	
+			}
 
 		} catch (Exception e) {
 			return ResponseEntity.badRequest().body(ExecutionResponse.builder().error(e.getMessage()).build());
 
 		}
-
 		return ResponseEntity.ok().body(ExecutionResponse.builder().id(idStored).build());
 
 	}

@@ -42,9 +42,6 @@ public class ExecutionDAO {
 	@JoinColumn(name = "entity_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private EntityDAO entityDao;
 
-	@Column(name="gts_message_id")
-	private String gtsMessageId;
-	
 	@Column(name="global_operation_id")
 	private String globalOperationId;
 
@@ -53,4 +50,7 @@ public class ExecutionDAO {
 	
 	@Transient
 	private int statusId;
+	
+	@Transient
+	private String gtsMessageId;
 }

@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +64,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 			executionRequest.setEntityId(entityId);
 			ExecutionDAO executionDao = ExecutionRequestToExecutionDAO.convert(executionRequest);
 			executionDao.setStatusId(1);
+			
 			return createExecution(executionDao);
 			
 		} else {
@@ -73,34 +75,34 @@ public class ExecutionServiceImpl implements ExecutionService{
 			}
 			
 			ExecutionDAO executionStored = executionStoredOptional.get();
-			manageStateMachine(executionRequest, executionStored);
+			int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
+			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
+			int nextStatus = getStatusIdFromName(executionRequest.getOperation());
+			manageNextState(entityStatusList, executionStored.getId(), lastStatus, nextStatus);
 			
 			return executionStored.getId();
 			
 		}
 	}
 
-	private void manageStateMachine(ExecutionRequest executionRequest, ExecutionDAO executionStored)
+	private void manageNextState(List<EntityStatusDAO> entityStatusList, UUID id, int lastStatus, Integer nextStatus)
 			throws OperationNotFound, OperationNotAllowed {
-		int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
-		
-		List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
 		
 		int lastOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrderstep();
-		int nextStatusIdFromRequest;
-		if (executionRequest.getOperationId() != 0) {
-			nextStatusIdFromRequest = executionRequest.getOperationId();
+		
+		EntityStatusDAO nextEntityStatus;
+		if (nextStatus != null) {
+			nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == nextStatus).findFirst().orElseThrow(() -> new OperationNotFound());
+
 		} else {
-			nextStatusIdFromRequest = getStatusIdFromName(executionRequest.getOperation());
+			nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrderstep() == lastOrderStatus + 1).findFirst().orElseThrow(() -> new OperationNotFound());
 		}
 		
-		EntityStatusDAO nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == nextStatusIdFromRequest).findFirst().orElseThrow(() -> new OperationNotFound());
 		
-		
-		log.info("Se ha encontrado el id {} para la operacion solicitada {}", nextEntityStatus.getIdStatus(), executionRequest.getOperation());
+		log.info("Se ha encontrado el id {} para la operacion solicitada ", nextEntityStatus.getIdStatus());
 		if (validOrderStep(lastOrderStatus, nextEntityStatus)) {
 		
-			createExecutionStatus(ExecutionStatusDAO.builder().id(executionStored.getId()).statusId(nextEntityStatus.getIdStatus()).timestamp(LocalDateTime.now()).build());
+			createExecutionStatus(ExecutionStatusDAO.builder().id(id).statusId(nextEntityStatus.getIdStatus()).timestamp(LocalDateTime.now()).build());
 			
 			if (nextEntityStatus.isRungateway()) {
 				//Call Gateway next step
@@ -109,8 +111,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 					log.info("Codigo respuesta Gateway: {}", response.getStatusCode());
 					
 					if (response.getStatusCode() == HttpStatus.OK ) {
-						int nextStatusId = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrderstep() == nextEntityStatus.getOrderstep() + 1).findFirst().orElseThrow(() -> new OperationNotFound()).getIdStatus();
-						createExecution(ExecutionRequest.builder().operationId(nextStatusId).gtsMessageId(executionRequest.getGtsMessageId()).build());
+						manageNextState(entityStatusList, id, nextEntityStatus.getIdStatus(), null);
 					}
 				} catch (Exception e) {
 					log.error("Ha habido un error al conectar con el Gateway: {}", e.getLocalizedMessage());
@@ -118,8 +119,8 @@ public class ExecutionServiceImpl implements ExecutionService{
 			}
 			
 		} else {
-			log.error("La operacion solicitada {} no coincide con el siguiente estado", executionRequest.getOperation());
-			throw new OperationNotAllowed(String.format("La operacion solicitada %s no coincide con el siguiente estado", executionRequest.getOperation()));
+			log.error("La operacion solicitada no coincide con el siguiente estado");
+			throw new OperationNotAllowed("La operacion solicitada no coincide con el siguiente estado");
 		}
 	}
 
@@ -168,6 +169,27 @@ public class ExecutionServiceImpl implements ExecutionService{
 	public int getStatusIdFromName(String name) {
 		Optional<StatusDAO> statusDAO = statusRepository.findByName(name);
 		return statusDAO.orElseThrow().getId();
+	}
+
+	@Override
+	@Async
+	public void createSecondStepStatus(int entityId, UUID id) {
+		try {
+			
+			Thread.sleep(7000);
+			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(entityId);
+			manageNextState(entityStatusList, id, 1, null);
+		} catch (OperationNotFound e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (OperationNotAllowed e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

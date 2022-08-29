@@ -26,5 +26,7 @@ public interface ExecutionService {
 	int getStatusIdFromName(String name);
 	
 	List<EntityStatusDAO> getAllStatusByEntity (int entityId);
+	
+	void createSecondStepStatus (int entityId, UUID id);
 
 }

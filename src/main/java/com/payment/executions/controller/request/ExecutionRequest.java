@@ -4,6 +4,8 @@ import javax.validation.constraints.NotNull;
 
 import org.springframework.validation.annotation.Validated;
 
+import com.payment.executions.dao.ExecutionDAO;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +32,7 @@ public class ExecutionRequest {
 	
 	private String operation;
 	
-	private int operationId;
+	private ExecutionDAO executionDAO;
+	
 	
 }

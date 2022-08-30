@@ -59,9 +59,10 @@ public class ExecutionController {
 
 		UUID idStored = null;
 		try {
-			idStored = executionService.createExecution(executionRequest);
+			Optional<ExecutionDAO> execution = executionService.getExecutionByGtsMessageId(executionRequest.getGtsMessageId());
+			idStored = executionService.createExecution(executionRequest, execution.orElse(null));
 			
-			if (executionRequest.getIdExecution() == null) {
+			if (execution.isEmpty()) {
 				executionService.createSecondStepStatus(1, idStored, executionRequest.getGtsMessageId());	
 			}
 

@@ -11,8 +11,6 @@ public class ExecutionMessage {
 
 	public String gtsMessageId;
 	
-	public String operation;
-	
 	public String idExecution;
 	
 }

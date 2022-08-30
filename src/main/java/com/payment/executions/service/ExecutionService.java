@@ -13,7 +13,7 @@ public interface ExecutionService {
 	
 	Optional<ExecutionDAO> getExecutionById (UUID id);
 	
-	UUID createExecution (ExecutionRequest executionRequest) throws Exception;
+	UUID createExecution (ExecutionRequest executionRequest, ExecutionDAO executionDAO) throws Exception;
 	
 	UUID createExecution (ExecutionDAO executionDAO);
 	
@@ -26,5 +26,7 @@ public interface ExecutionService {
 	List<EntityStatusDAO> getAllStatusByEntity (int entityId);
 	
 	void createSecondStepStatus (int entityId, UUID id, String gtsMessageId);
+	
+	Optional<ExecutionDAO> getExecutionByGtsMessageId (String gtsMessageId);
 
 }

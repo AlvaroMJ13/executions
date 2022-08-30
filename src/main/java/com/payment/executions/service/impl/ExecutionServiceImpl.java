@@ -21,7 +21,6 @@ import com.payment.executions.dao.ExecutionStatusDAO;
 import com.payment.executions.dao.StatusDAO;
 import com.payment.executions.exception.OperationNotAllowed;
 import com.payment.executions.exception.OperationNotFound;
-import com.payment.executions.exception.OperationNotPresent;
 import com.payment.executions.mapper.ExecutionRequestToExecutionDAO;
 import com.payment.executions.repository.EntityRepository;
 import com.payment.executions.repository.EntityStatusRepository;
@@ -56,9 +55,9 @@ public class ExecutionServiceImpl implements ExecutionService{
 	
 	
 	@Override
-	public UUID createExecution(ExecutionRequest executionRequest) throws OperationNotFound, OperationNotAllowed, OperationNotPresent  {
+	public UUID createExecution(ExecutionRequest executionRequest, ExecutionDAO executionDAO) throws OperationNotFound, OperationNotAllowed  {
 		
-		if (executionRequest.getIdExecution() == null) {
+		if (executionDAO == null) {
 			int entityId = getEntityIdFromName(executionRequest.getEntity());
 			executionRequest.setEntityId(entityId);
 			ExecutionDAO executionDao = ExecutionRequestToExecutionDAO.convert(executionRequest);
@@ -68,41 +67,22 @@ public class ExecutionServiceImpl implements ExecutionService{
 			
 		} else {
 			
-			Optional<ExecutionDAO> executionStoredOptional = getExecutionById(UUID.fromString(executionRequest.getIdExecution()));
-			
-			if (executionStoredOptional.isPresent()) {
-				if (executionRequest.getOperation() == null && executionRequest.getOperationId() == 0) {
-					log.error("No existe el parámetro operation en la peticion");
-					throw new OperationNotPresent("No existe el parámetro operation en la peticion");
-				}
-
-				ExecutionDAO executionStored = executionStoredOptional.get();
-				int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
-				List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
-				int nextStatus = getStatusIdFromName(executionRequest.getOperation());
-				manageNextState(entityStatusList, executionStored.getId(), lastStatus, nextStatus, executionRequest.getGtsMessageId());
-
-				return executionStored.getId();
-			} else {
-				log.error("No existe el ID de la ejecución");
-				throw new OperationNotFound();
-			}
+			int lastStatus = executionDAO.getExecutionStatusDAO().get(executionDAO.getExecutionStatusDAO().size() - 1).getStatusId();
+			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionDAO.getEntityId());
+			manageNextState(entityStatusList, executionDAO.getId(), lastStatus, executionRequest.getGtsMessageId());
+	
+			return executionDAO.getId();
 			
 		}
 	}
 
-	private void manageNextState(List<EntityStatusDAO> entityStatusList, UUID id, int lastStatus, Integer nextStatus, String gtsMessageId)
+	private void manageNextState(List<EntityStatusDAO> entityStatusList, UUID id, int lastStatus, String gtsMessageId)
 			throws OperationNotFound, OperationNotAllowed {
 		
 		int lastOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrderstep();
 		
 		EntityStatusDAO nextEntityStatus;
-		if (nextStatus != null) {
-			nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == nextStatus).findFirst().orElseThrow(() -> new OperationNotFound());
-
-		} else {
-			nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrderstep() == lastOrderStatus + 1).findFirst().orElseThrow(() -> new OperationNotFound());
-		}
+		nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrderstep() == lastOrderStatus + 1).findFirst().orElseThrow(() -> new OperationNotFound());
 		
 		
 		log.info("Se ha encontrado el id {} para la operacion solicitada ", nextEntityStatus.getIdStatus());
@@ -118,11 +98,9 @@ public class ExecutionServiceImpl implements ExecutionService{
 			if (nextEntityStatus.isRungateway()) {
 				//Call Gateway next step
 				try {
-					ResponseEntity<String> response = gatewayClient.getStep1();
-					log.info("Codigo respuesta Gateway: {}", response.getStatusCode());
 					
-					if (response.getStatusCode() == HttpStatus.OK ) {
-						manageNextState(entityStatusList, id, nextEntityStatus.getIdStatus(), null, gtsMessageId);
+					if (sendRequestToGateway(gtsMessageId, id.toString()) == HttpStatus.OK ) {
+						manageNextState(entityStatusList, id, nextEntityStatus.getIdStatus(), gtsMessageId);
 					}
 				} catch (Exception e) {
 					log.error("Ha habido un error al conectar con el Gateway: {}", e.getLocalizedMessage());
@@ -133,6 +111,12 @@ public class ExecutionServiceImpl implements ExecutionService{
 			log.error("La operacion solicitada no coincide con el siguiente estado");
 			throw new OperationNotAllowed("La operacion solicitada no coincide con el siguiente estado");
 		}
+	}
+
+	private HttpStatus sendRequestToGateway(String gtsMessageId, String idExecution) {
+		ResponseEntity<String> response = gatewayClient.getStep1(gtsMessageId, idExecution);
+		log.info("Codigo respuesta Gateway: {}", response.getStatusCode());
+		return response.getStatusCode();
 	}
 
 	private boolean validOrderStep(int lastOrderStatus, EntityStatusDAO nextEntityStatus) {
@@ -188,7 +172,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 		try {
 			
 			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(entityId);
-			manageNextState(entityStatusList, id, 1, null, gtsMessageId);
+			manageNextState(entityStatusList, id, 1, gtsMessageId);
 		} catch (OperationNotFound e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -197,6 +181,11 @@ public class ExecutionServiceImpl implements ExecutionService{
 			e.printStackTrace();
 		} 
 		
+	}
+
+	@Override
+	public Optional<ExecutionDAO> getExecutionByGtsMessageId(String gtsMessageId) {
+		return executionRepository.findByExecutionStatusDAOGtsMessageId(gtsMessageId);
 	}
 
 }

@@ -80,7 +80,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 				int lastStatus = executionStored.getExecutionStatusDAO().get(executionStored.getExecutionStatusDAO().size() - 1).getStatusId();
 				List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionStored.getEntityId());
 				int nextStatus = getStatusIdFromName(executionRequest.getOperation());
-				manageNextState(entityStatusList, executionStored.getId(), lastStatus, nextStatus);
+				manageNextState(entityStatusList, executionStored.getId(), lastStatus, nextStatus, executionRequest.getGtsMessageId());
 
 				return executionStored.getId();
 			} else {
@@ -91,7 +91,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 		}
 	}
 
-	private void manageNextState(List<EntityStatusDAO> entityStatusList, UUID id, int lastStatus, Integer nextStatus)
+	private void manageNextState(List<EntityStatusDAO> entityStatusList, UUID id, int lastStatus, Integer nextStatus, String gtsMessageId)
 			throws OperationNotFound, OperationNotAllowed {
 		
 		int lastOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrderstep();
@@ -112,7 +112,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 					.id(id)
 					.statusId(nextEntityStatus.getIdStatus())
 					.timestamp(LocalDateTime.now())
-					.gtsMessageId("1")
+					.gtsMessageId(gtsMessageId)
 					.build());
 			
 			if (nextEntityStatus.isRungateway()) {
@@ -122,7 +122,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 					log.info("Codigo respuesta Gateway: {}", response.getStatusCode());
 					
 					if (response.getStatusCode() == HttpStatus.OK ) {
-						manageNextState(entityStatusList, id, nextEntityStatus.getIdStatus(), null);
+						manageNextState(entityStatusList, id, nextEntityStatus.getIdStatus(), null, gtsMessageId);
 					}
 				} catch (Exception e) {
 					log.error("Ha habido un error al conectar con el Gateway: {}", e.getLocalizedMessage());
@@ -184,11 +184,11 @@ public class ExecutionServiceImpl implements ExecutionService{
 
 	@Override
 	@Async
-	public void createSecondStepStatus(int entityId, UUID id) {
+	public void createSecondStepStatus(int entityId, UUID id, String gtsMessageId) {
 		try {
 			
 			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(entityId);
-			manageNextState(entityStatusList, id, 1, null);
+			manageNextState(entityStatusList, id, 1, null, gtsMessageId);
 		} catch (OperationNotFound e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

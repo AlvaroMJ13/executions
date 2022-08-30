@@ -17,19 +17,19 @@ import lombok.NoArgsConstructor;
 public class ExecutionRequest {
 
 	@NotNull
-	public String entity;
+	private String entity;
 	
-	public int entityId;
+	private int entityId;
 	
-	public String idExecution;
+	private String idExecution;
 	
 	@NotNull
-	public String gtsMessageId;
+	private String gtsMessageId;
 	
-	public String operationGlobalId;
+	private String operationGlobalId;
 	
-	public String operation;
+	private String operation;
 	
-	public int operationId;
+	private int operationId;
 	
 }

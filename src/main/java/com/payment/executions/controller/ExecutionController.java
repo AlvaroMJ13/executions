@@ -62,7 +62,7 @@ public class ExecutionController {
 			idStored = executionService.createExecution(executionRequest);
 			
 			if (executionRequest.getIdExecution() == null) {
-				executionService.createSecondStepStatus(1, idStored);	
+				executionService.createSecondStepStatus(1, idStored, executionRequest.getGtsMessageId());	
 			}
 
 		} catch (Exception e) {

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+  <div class="mermaid">
+  sequenceDiagram
+    REQUEST->>+executions: {"entity":"ONE-APP","gtsMessageId":"31081150"}
+    executions->>+executions: [CREATED]
+    executions-->>+REQUEST: {"id":"86a31ea9-7d38-4aa9-b7f3-67f23aca6109"}
+    executions->>+executions: [SAAS]
+    executions->>+GATEWAY: gtsMessageId, idExecution
+    GATEWAY->>+otherMicro: gtsMessageId, idExecution
+    otherMicro-->>-GATEWAY: 200 OK
+    GATEWAY-->>-executions: 200 OK
+    executions->>+executions: [SAAS-PENDING]
+    KAFKA->>+executions: {"gtsMessageId":"5464564","idExecution":"86a31ea9-7d38-4aa9-b7f3-67f23aca6109"}
+    executions->>+executions: [EMIT]
+    executions->>+GATEWAY: gtsMessageId, idExecution
+    GATEWAY->>+otherMicro: gtsMessageId, idExecution
+    otherMicro-->>-GATEWAY: 200 OK
+    GATEWAY-->>-executions: 200 OK
+    executions->>+executions: [EMITTED];
+  </div>
+  <script src="https://unpkg.com/mermaid@8.0.0-rc.8/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      theme: 'forest'
+    });
+  </script>
+</body>
+</html>

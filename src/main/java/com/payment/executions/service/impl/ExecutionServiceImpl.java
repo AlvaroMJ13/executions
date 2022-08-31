@@ -21,6 +21,8 @@ import com.payment.executions.dao.ExecutionStatusDAO;
 import com.payment.executions.dao.StatusDAO;
 import com.payment.executions.exception.OperationNotAllowed;
 import com.payment.executions.exception.OperationNotFound;
+import com.payment.executions.kafka.KafkaProducerService;
+import com.payment.executions.kafka.model.RegisterMessage;
 import com.payment.executions.mapper.ExecutionRequestToExecutionDAO;
 import com.payment.executions.repository.EntityRepository;
 import com.payment.executions.repository.EntityStatusRepository;
@@ -52,6 +54,9 @@ public class ExecutionServiceImpl implements ExecutionService{
 	
 	@Autowired
 	private GatewayClient gatewayClient;
+	
+	@Autowired
+	private KafkaProducerService kafkaService;
 	
 	
 	@Override
@@ -102,6 +107,12 @@ public class ExecutionServiceImpl implements ExecutionService{
 					.statusId(nextEntityStatus.getIdStatus())
 					.timestamp(LocalDateTime.now())
 					.gtsMessageId(gtsMessageId)
+					.build());
+			
+			kafkaService.sendMessage(RegisterMessage.builder()
+					.idExecution(id.toString())
+					.gtsMessageId(gtsMessageId)
+					.status(statusRepository.findById(nextEntityStatus.getIdStatus()).get().getName())
 					.build());
 			
 			if (nextEntityStatus.isRungateway()) {

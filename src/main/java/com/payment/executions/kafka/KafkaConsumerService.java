@@ -1,4 +1,4 @@
-package com.payment.executions.consumer;
+package com.payment.executions.kafka;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -7,22 +7,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.payment.executions.consumer.model.ExecutionMessage;
 import com.payment.executions.controller.request.ExecutionRequest;
 import com.payment.executions.dao.ExecutionDAO;
 import com.payment.executions.exception.OperationNotAllowed;
+import com.payment.executions.kafka.model.ExecutionMessage;
 import com.payment.executions.service.ExecutionService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
-public class KafkaConsumer {
+public class KafkaConsumerService {
 
 	@Autowired
 	ExecutionService executionService;
-	
-	@KafkaListener(topics = "${kafka.topic.name}", containerFactory = "kafkaListenerContainerFactory")
+		
+	@KafkaListener(topics = "${kafka.consumer.topic.name}", containerFactory = "kafkaListenerContainerFactory")
 	public void consume (ExecutionMessage executionMessage) {
 		log.info("Mensaje leido. gtsMessageId: {}", executionMessage.getGtsMessageId());
 		
@@ -42,4 +42,5 @@ public class KafkaConsumer {
 			log.error("gtsMessageId: {} - {}", executionMessage.getGtsMessageId(), e.getMessage());
 		}
 	}
+	
 }

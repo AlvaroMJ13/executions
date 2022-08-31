@@ -69,7 +69,9 @@ public class ExecutionServiceImpl implements ExecutionService{
 			
 			int lastStatus = executionDAO.getExecutionStatusDAO().get(executionDAO.getExecutionStatusDAO().size() - 1).getStatusId();
 			List<EntityStatusDAO> entityStatusList = getAllStatusByEntity(executionDAO.getEntityId());
-			manageNextState(entityStatusList, executionDAO.getId(), lastStatus, executionRequest.getGtsMessageId());
+			if (lastStatus != 3 || executionRequest.getIdExecution() != null) {
+				manageNextState(entityStatusList, executionDAO.getId(), lastStatus, executionRequest.getGtsMessageId());
+			}
 	
 			return executionDAO.getId();
 			
@@ -82,7 +84,14 @@ public class ExecutionServiceImpl implements ExecutionService{
 		int lastOrderStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getIdStatus() == lastStatus).findFirst().get().getOrderstep();
 		
 		EntityStatusDAO nextEntityStatus;
-		nextEntityStatus = entityStatusList.stream().filter(entityStatus -> entityStatus.getOrderstep() == lastOrderStatus + 1).findFirst().orElseThrow(() -> new OperationNotFound());
+		
+		if (lastOrderStatus + 1 > entityStatusList.size()) {
+			throw new OperationNotFound("Execution in last status");
+		}
+		
+		nextEntityStatus = entityStatusList.stream()
+				.filter(entityStatus -> entityStatus.getOrderstep() == lastOrderStatus + 1)
+				.findFirst().orElseThrow(() -> new OperationNotFound("Status not found"));
 		
 		
 		log.info("Se ha encontrado el id {} para la operacion solicitada ", nextEntityStatus.getIdStatus());

@@ -39,7 +39,7 @@ public class KafkaConsumer {
 					.idExecution(executionMessage.getIdExecution())
 					.build(), executionDAO.get());
 		} catch (Exception e) {
-			log.error("There was an error trying to update excution with gtsMessageId: {}", executionMessage.getGtsMessageId());
+			log.error("gtsMessageId: {} - {}", executionMessage.getGtsMessageId(), e.getMessage());
 		}
 	}
 }

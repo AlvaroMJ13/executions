@@ -59,7 +59,14 @@ public class ExecutionController {
 
 		UUID idStored = null;
 		try {
-			Optional<ExecutionDAO> execution = executionService.getExecutionByGtsMessageId(executionRequest.getGtsMessageId());
+			
+			Optional<ExecutionDAO> execution;
+			if (executionRequest.getIdExecution() != null) {
+				execution = executionService.getExecutionById(UUID.fromString(executionRequest.getIdExecution()));
+			} else {
+				execution = executionService.getExecutionByGtsMessageId(executionRequest.getGtsMessageId());				
+			}
+			
 			idStored = executionService.createExecution(executionRequest, execution.orElse(null));
 			
 			if (execution.isEmpty()) {

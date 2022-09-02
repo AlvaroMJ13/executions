@@ -119,3 +119,24 @@
 	    ]
 	}
 	```
+	
+# Mensajes KAFKA
+
+ - Producer
+ ```
+ {
+   "gtsMessageId":"31081150",
+   "idExecution":"86a31ea9-7d38-4aa9-b7f3-67f23aca6109",
+   "status":"SAAS-PENDING"
+ }
+ ```
+ 
+ - Consumer
+  ```
+{
+  "gtsMessageId":"98989898",
+  "idExecution":"9b5f6bae-e32e-480d-85f8-69777f5cddb5"
+}
+ ```
+
+

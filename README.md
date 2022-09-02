@@ -21,8 +21,8 @@
 	  executions ||--|{ executions_status : "has";
 	  executions ||--|| entity : "contains";
 	  executions_status ||--|| status : "contains";
-	  entity ||--|{ entity_status : "";
-	  status ||--|{ entity_status : "";
+	  entity ||--|{ entity_status : "has";
+	  status ||--|{ entity_status : "has";
 ```
 
 # Diagrama de secuencia

@@ -17,7 +17,7 @@
 
 ```mermaid
 
- erDiagram
+ erDiagram;
 	  executions ||--|{ executions_status : "has";
 	  executions ||--|| entity : "contains";
 	  executions_status ||--|| status : "contains";

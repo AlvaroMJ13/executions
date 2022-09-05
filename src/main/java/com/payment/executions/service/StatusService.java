@@ -8,7 +8,7 @@ public interface StatusService {
 	
 	int createEntity (String name);
 	
-	void createEntityStatus (EntityStatusRequest entityStatus);
+	boolean createEntityStatus (EntityStatusRequest entityStatus);
 	
 	void deleteStatus (int id);
 	

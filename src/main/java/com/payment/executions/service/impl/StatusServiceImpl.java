@@ -36,7 +36,7 @@ public class StatusServiceImpl implements StatusService{
 	}
 
 	@Override
-	public void createEntityStatus(EntityStatusRequest entityStatus) {
+	public boolean createEntityStatus(EntityStatusRequest entityStatus) {
 		EntityStatusDAO entityStatusDAO = EntityStatusDAO.builder()
 				.idEntity(entityStatus.getEntityId())
 				.idStatus(entityStatus.getStatusId())
@@ -44,6 +44,7 @@ public class StatusServiceImpl implements StatusService{
 				.rungateway(entityStatus.isGateway())
 				.build();
 		entityStatusRepository.save(entityStatusDAO);
+		return true;
 		
 	}
 

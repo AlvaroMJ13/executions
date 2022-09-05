@@ -1,4 +1,4 @@
-package com.payment.executions;
+package com.payment.executions.integration;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -23,7 +23,7 @@ import com.payment.executions.repository.ExecutionStatusRepository;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @TestInstance(Lifecycle.PER_CLASS)
-class ExecutionsApplicationTests {
+class ExecutionsIntegrationTests {
 
 	@Autowired
     private WebTestClient webTestClient;

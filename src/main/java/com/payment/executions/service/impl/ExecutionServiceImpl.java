@@ -119,7 +119,7 @@ public class ExecutionServiceImpl implements ExecutionService{
 				//Call Gateway next step
 				try {
 					
-					if (sendRequestToGateway(gtsMessageId, id.toString()) == HttpStatus.OK ) {
+					if (sendRequestToGateway(gtsMessageId, id.toString()).is2xxSuccessful()) { 
 						manageNextState(entityStatusList, id, nextEntityStatus.getIdStatus(), gtsMessageId);
 					}
 				} catch (Exception e) {
